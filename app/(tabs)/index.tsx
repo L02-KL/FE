@@ -1,11 +1,12 @@
 import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { Button, Platform, StyleSheet } from 'react-native';
 
 import { HelloWave } from '@/components/hello-wave';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Link } from 'expo-router';
+import * as Sentry from 'sentry-expo';
 
 export default function HomeScreen() {
   return (
@@ -73,6 +74,17 @@ export default function HomeScreen() {
           <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
           <ThemedText type="defaultSemiBold">app-example</ThemedText>.
         </ThemedText>
+      </ThemedView>
+
+       {/* 🚀 TEST SENTRY BUTTON */}
+      <ThemedView style={styles.stepContainer}>
+        <ThemedText type="subtitle">Step 4: Test Sentry</ThemedText>
+        <Button
+          title="Send Sentry Test Error"
+          onPress={() => {
+            Sentry.Native.captureException(new Error("🔥 Sentry test error!"));
+          }}
+        />
       </ThemedView>
     </ParallaxScrollView>
   );
