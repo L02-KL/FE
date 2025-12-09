@@ -1,0 +1,31 @@
+export const Colors = {
+  primary: '#4A90E2',
+  primaryLight: '#A2D9CE',
+  secondary: '#7B68EE',
+  secondaryLight: '#E8E3FF',
+  success: '#4CAF50',
+  successLight: '#E8F5E9',
+  warning: '#FFC107',
+  error: '#F44336',
+  background: '#FFFFFF',
+  backgroundLight: '#F5F5F5',
+  text: '#212121',
+  textSecondary: '#757575',
+  textLight: '#9E9E9E',
+  border: '#E0E0E0',
+  purple: '#9C27B0',
+  purpleLight: '#F3E5F5',
+  green: '#66BB6A',
+  greenLight: '#E8F5E9',
+  lightGreen: '#C8E6C9', // Light green for appointment card and bottom nav
+  teal: '#26A69A', // Teal for Focus mood
+  tealLight: '#B2DFDB',
+  blue: '#42A5F5',
+  blueLight: '#E3F2FD',
+  pink: '#EC407A',
+  pinkLight: '#FCE4EC',
+  yellow: '#FFD54F',
+  orange: '#FF9800',
+  orangeLight: '#FFE0B2',
+};
+
