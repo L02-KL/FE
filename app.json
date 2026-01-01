@@ -9,7 +9,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.myapp"
     },
     "android": {
       "adaptiveIcon": {
@@ -31,20 +32,14 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
+          "image": "./assets/images/mascot/happy.png",
+          "imageWidth": 280,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#4A90D9",
           "dark": {
-            "backgroundColor": "#000000"
+            "backgroundColor": "#2E5A8B",
+            "image": "./assets/images/mascot/happy.png"
           }
-        }
-      ],
-      [
-        "sentry-expo",
-        {
-          "organization": "deadtood",
-          "project": "l02-kl"
         }
       ]
     ],

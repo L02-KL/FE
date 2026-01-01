@@ -1,110 +1,146 @@
-import { Image } from 'expo-image';
-import { Button, Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
-import * as Sentry from 'sentry-expo';
+import { Mascot } from '@/components/common/Mascot';
+import { SectionHeader } from '@/components/common/SectionHeader';
+import { HeaderGreeting } from '@/components/home/HeaderGreeting';
+import { StatsCard } from '@/components/home/StatsCard';
+import { TaskCard } from '@/components/tasks/TaskCard';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useDashboard } from '@/hooks/useApi';
+import { useRouter } from 'expo-router';
+import React from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function HomeScreen() {
+  const router = useRouter();
+  const { colors } = useTheme();
+  const { data, loading, error, refetch } = useDashboard();
+
+  const handleViewAllTasks = () => {
+    router.push('/tasks');
+  };
+
+  if (loading) {
+    return (
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <Mascot mood="bored" size="large" />
+        <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 16 }} />
+        <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={[styles.errorContainer, { backgroundColor: colors.background }]}>
+        <Mascot mood="angry" size="large" />
+        <Text style={[styles.errorText, { color: colors.error }]}>Error loading dashboard</Text>
+        <Text style={[styles.errorSubtext, { color: colors.textSecondary }]}>{error.message}</Text>
+      </View>
+    );
+  }
+
+  const stats = data?.stats;
+  const upcomingTasks = data?.upcomingTasks || [];
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScrollView 
+        style={styles.scrollView} 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header Card */}
+        <View style={[styles.headerCard, { backgroundColor: colors.primaryLight }]}>
+          <HeaderGreeting />
+          
+          {/* Stats Row */}
+          <View style={styles.statsRow}>
+            <StatsCard
+              iconName="checkbox"
+              iconColor={colors.primary}
+              label="Tasks Due"
+              value={stats?.tasksDue || 0}
+              iconBackgroundColor={colors.primaryLight}
             />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+            <StatsCard
+              iconName="school"
+              iconColor={colors.accent}
+              label="Courses"
+              value={stats?.coursesCount || 0}
+              iconBackgroundColor={colors.accentLight}
+            />
+          </View>
+        </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-
-       {/* 🚀 TEST SENTRY BUTTON */}
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 4: Test Sentry</ThemedText>
-        <Button
-          title="Send Sentry Test Error"
-          onPress={() => {
-            Sentry.Native.captureException(new Error("🔥 Sentry test error!"));
-          }}
-        />
-      </ThemedView>
-    </ParallaxScrollView>
+        {/* Upcoming Tasks Section */}
+        <View style={styles.section}>
+          <SectionHeader
+            title="Upcoming Tasks"
+            actionText="View All"
+            onActionPress={handleViewAllTasks}
+          />
+          
+          {upcomingTasks.map((task) => (
+            <TaskCard
+              key={task.id}
+              task={task}
+              onPress={() => router.push(`/task/${task.id}`)}
+            />
+          ))}
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  container: {
+    flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    gap: 8,
   },
-  stepContainer: {
-    gap: 8,
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    fontSize: 18,
+    fontWeight: '600',
     marginBottom: 8,
+    marginTop: 16,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  errorSubtext: {
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 100,
+  },
+  headerCard: {
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 24,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    marginTop: 20,
+    marginHorizontal: -6,
+  },
+  section: {
+    paddingHorizontal: 20,
+    paddingTop: 24,
   },
 });
