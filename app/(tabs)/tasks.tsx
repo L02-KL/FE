@@ -1,5 +1,5 @@
-import { useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -17,6 +17,12 @@ export default function TasksScreen() {
   const { colors } = useTheme();
   const { data, loading, error, refetch } = useTasks();
 
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch])
+  );
+
   const filters: { key: FilterType; label: string; color?: string }[] = [
     { key: 'all', label: 'All' },
     { key: 'high', label: 'High', color: colors.priorityHigh },
@@ -25,7 +31,7 @@ export default function TasksScreen() {
   ];
 
   const allTasks = data?.items || [];
-  
+
   const filteredTasks = useMemo(() => {
     if (activeFilter === 'all') return allTasks;
     return allTasks.filter(task => task.priority === activeFilter);
@@ -67,8 +73,8 @@ export default function TasksScreen() {
       </View>
 
       {/* Filter Tabs */}
-      <ScrollView 
-        horizontal 
+      <ScrollView
+        horizontal
         showsHorizontalScrollIndicator={false}
         style={styles.filterContainer}
         contentContainerStyle={styles.filterContent}

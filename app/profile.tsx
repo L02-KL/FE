@@ -1,16 +1,17 @@
+import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Alert,
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -27,16 +28,17 @@ interface UserProfile {
 export default function ProfileScreen() {
   const { colors } = useTheme();
   const router = useRouter();
+  const { user, logout } = useAuth();
 
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState<UserProfile>({
-    name: 'Quang Tran',
-    email: 'quang.tran@university.edu',
-    phone: '+84 123 456 789',
-    studentId: '2021001234',
-    major: 'Computer Science',
-    year: 'Junior',
-    avatar: null,
+    name: user?.name || 'User',
+    email: user?.email || '',
+    phone: '',
+    studentId: '',
+    major: '',
+    year: '',
+    avatar: user?.avatar || null,
   });
 
   const [editedProfile, setEditedProfile] = useState<UserProfile>(profile);
@@ -63,6 +65,28 @@ export default function ProfileScreen() {
 
   const handleChangeAvatar = () => {
     Alert.alert('Change Avatar', 'Photo picker will be implemented with image library');
+  };
+
+  const handleLogout = async () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await logout();
+              // Navigation handled by AuthContext
+            } catch (error) {
+              console.error('Logout failed:', error);
+            }
+          }
+        }
+      ]
+    );
   };
 
   const renderField = (
@@ -193,6 +217,19 @@ export default function ProfileScreen() {
               onPress={handleSave}
             >
               <Text style={styles.saveButtonText}>Save Changes</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Logout Button */}
+        {!isEditing && (
+          <View style={styles.section}>
+            <TouchableOpacity
+              style={[styles.logoutButton, { backgroundColor: '#ffebee' }]}
+              onPress={handleLogout}
+            >
+              <Ionicons name="log-out-outline" size={24} color={colors.error} style={{ marginRight: 8 }} />
+              <Text style={[styles.logoutText, { color: colors.error }]}>Log Out</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -379,4 +416,16 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFF',
   },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    borderRadius: 16,
+    marginTop: 8,
+  },
+  logoutText: {
+    fontSize: 16,
+    fontWeight: '600',
+  }
 });

@@ -1,19 +1,18 @@
 import { getCourseIcon } from '@/components/courses/CourseCard';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useTask, useTaskMutations } from '@/hooks/useApi';
-import { CourseIconType, Priority, Reminder, ReminderType, TaskStatus } from '@/types';
+import { CourseIconType, Priority, ReminderType, TaskStatus } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -21,7 +20,7 @@ export default function TaskDetailScreen() {
   const { colors } = useTheme();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  
+
   const { data: task, loading, refetch } = useTask(id);
   const { updateTask, deleteTask, loading: mutating } = useTaskMutations();
 
@@ -36,7 +35,7 @@ export default function TaskDetailScreen() {
 
   const handleMarkComplete = async () => {
     if (!task) return;
-    
+
     Alert.alert(
       'Mark as Complete',
       'Are you sure you want to mark this task as complete?',
@@ -55,7 +54,7 @@ export default function TaskDetailScreen() {
 
   const handleDeleteTask = async () => {
     if (!task) return;
-    
+
     Alert.alert(
       'Delete Task',
       'Are you sure you want to delete this task? This action cannot be undone.',
@@ -106,8 +105,8 @@ export default function TaskDetailScreen() {
 
   const formatReminderDate = (date: Date) => {
     const d = new Date(date);
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + 
-           ', ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) +
+      ', ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
   };
 
   if (loading) {
@@ -233,98 +232,15 @@ export default function TaskDetailScreen() {
           )}
         </View>
 
-        {/* Reminders Section */}
+        {/* Reminders Section - Hidden for Local Notification Mode
         <View style={[styles.section, { backgroundColor: colors.cardBackground }]}>
-          <View style={styles.sectionHeaderRow}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionEmoji}>🔔</Text>
-              <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
-                Reminders ({reminders.length})
-              </Text>
-            </View>
-            <TouchableOpacity 
-              style={[styles.addButton, { backgroundColor: colors.accent }]}
-              onPress={() => setShowAddReminder(true)}
-            >
-              <Ionicons name="add" size={18} color="#FFFFFF" />
-              <Text style={styles.addButtonText}>Add</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Reminder List */}
-          {reminders.map((reminder: Reminder, index: number) => (
-            <View key={reminder.id || index} style={[styles.reminderItem, { backgroundColor: colors.background }]}>
-              <View style={[styles.reminderIconBox, { backgroundColor: '#FFF8E1' }]}>
-                <Ionicons name="notifications" size={18} color="#FF9800" />
-              </View>
-              <View style={styles.reminderInfo}>
-                <Text style={[styles.reminderDate, { color: colors.textPrimary }]}>
-                  {formatReminderDate(reminder.dateTime)}
-                </Text>
-                <Text style={[styles.reminderType, { color: colors.textMuted }]}>
-                  {reminder.type === 'push' ? '🔔 Push Notification' : '📧 Email Notification'}
-                </Text>
-              </View>
-              <View style={styles.reminderActions}>
-                <TouchableOpacity style={styles.reminderAction}>
-                  <Ionicons name="pencil-outline" size={18} color={colors.textMuted} />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.reminderAction}>
-                  <Ionicons name="trash-outline" size={18} color={colors.error} />
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))}
-
-          {/* Add Reminder Form (inline) */}
-          {showAddReminder && (
-            <View style={[styles.addReminderForm, { borderColor: colors.accent }]}>
-              <TextInput
-                style={[styles.reminderInput, { backgroundColor: colors.background, color: colors.textPrimary }]}
-                placeholder="e.g., Oct 28, 6:00 PM"
-                placeholderTextColor={colors.textMuted}
-                value={newReminderDate}
-                onChangeText={setNewReminderDate}
-              />
-              <View style={styles.reminderTypeRow}>
-                <TouchableOpacity style={styles.addReminderIcon}>
-                  <Ionicons name="add" size={20} color={colors.accent} />
-                </TouchableOpacity>
-                <View style={[styles.reminderTypeSelect, { backgroundColor: colors.background }]}>
-                  <Text style={styles.reminderTypeIcon}>🔔</Text>
-                  <Text style={[styles.reminderTypeText, { color: colors.textPrimary }]}>Push notification</Text>
-                  <Ionicons name="chevron-down" size={16} color={colors.textMuted} />
-                </View>
-              </View>
-              <View style={styles.addReminderButtons}>
-                <TouchableOpacity 
-                  style={[styles.addReminderBtn, { backgroundColor: colors.accent }]}
-                  onPress={() => {
-                    // TODO: Add reminder logic
-                    setShowAddReminder(false);
-                    setNewReminderDate('');
-                  }}
-                >
-                  <Ionicons name="add" size={16} color="#FFFFFF" />
-                  <Text style={styles.addReminderBtnText}>Add Reminder</Text>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  style={[styles.cancelReminderBtn, { backgroundColor: colors.textMuted }]}
-                  onPress={() => {
-                    setShowAddReminder(false);
-                    setNewReminderDate('');
-                  }}
-                >
-                  <Ionicons name="close" size={18} color="#FFFFFF" />
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
+          ...
         </View>
+        */}
 
         {/* Action Buttons */}
         <View style={styles.actionButtons}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.completeButton, { backgroundColor: '#4CAF50' }]}
             onPress={handleMarkComplete}
             disabled={mutating || task.status === 'completed'}
@@ -335,7 +251,7 @@ export default function TaskDetailScreen() {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.deleteButton, { backgroundColor: colors.cardBackground }]}
             onPress={handleDeleteTask}
             disabled={mutating}

@@ -40,12 +40,7 @@ export interface User {
   updatedAt: Date;
 }
 
-export interface AuthTokens {
-  accessToken: string;
-  refreshToken: string;
-  expiresIn: number;
-}
-
+// Backend returns a single token string according to logs
 export interface LoginRequest {
   email: string;
   password: string;
@@ -59,7 +54,7 @@ export interface RegisterRequest {
 
 export interface AuthResponse {
   user: User;
-  tokens: AuthTokens;
+  token: string;
 }
 
 // ============================================

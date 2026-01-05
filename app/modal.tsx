@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import * as Notifications from 'expo-notifications';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -36,6 +37,7 @@ export default function AddTaskModal() {
   const [dueDate, setDueDate] = useState<Date | null>(null);
   const [dueTime, setDueTime] = useState<Date | null>(null);
   const [enableReminder, setEnableReminder] = useState(false);
+  const [reminderOffset, setReminderOffset] = useState(60); // Default 60 mins (1 hour)
 
   // Picker states
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -43,8 +45,17 @@ export default function AddTaskModal() {
   const [showCoursePicker, setShowCoursePicker] = useState(false);
   const [showPriorityPicker, setShowPriorityPicker] = useState(false);
   const [showStatusPicker, setShowStatusPicker] = useState(false);
+  const [showReminderPicker, setShowReminderPicker] = useState(false); // New Picker
 
   const courses = coursesData?.items || [];
+
+  // Reminder Options
+  const reminderOptions = [
+    { key: 15, label: '15 minutes before', icon: '⚡' },
+    { key: 60, label: '1 hour before', icon: '⏰' },
+    { key: 1440, label: '1 day before', icon: '📅' },
+  ];
+  const selectedReminder = reminderOptions.find(r => r.key === reminderOffset);
 
   const priorities: { key: Priority; label: string; color: string; icon: string }[] = [
     { key: 'high', label: 'High', color: colors.priorityHigh, icon: '🔴' },
@@ -73,14 +84,13 @@ export default function AddTaskModal() {
   };
 
   const handleDateChange = (event: any, selectedDate?: Date) => {
-    setShowDatePicker(Platform.OS === 'ios');
+    // On iOS, we don't close immediately. On Android, the picker closes itself.
     if (selectedDate) {
       setDueDate(selectedDate);
     }
   };
 
   const handleTimeChange = (event: any, selectedTime?: Date) => {
-    setShowTimePicker(Platform.OS === 'ios');
     if (selectedTime) {
       setDueTime(selectedTime);
     }
@@ -88,6 +98,41 @@ export default function AddTaskModal() {
 
   const handleBack = () => {
     router.back();
+  };
+
+  const scheduleLocalNotification = async (taskId: string, taskTitle: string, due: Date) => {
+    if (!enableReminder) return;
+
+    const triggerDate = new Date(due.getTime() - reminderOffset * 60 * 1000);
+    const seconds = Math.floor((triggerDate.getTime() - Date.now()) / 1000);
+
+    // Don't schedule if time has passed
+    if (seconds <= 0) {
+      console.log('❌ Reminder time passed. Trigger:', triggerDate.toLocaleTimeString(), 'Now:', new Date().toLocaleTimeString());
+      Alert.alert(
+        'Reminder Skipped',
+        'The reminder time you selected has already passed, so no notification will be sent.\n\nTip: Choose a later deadline or a shorter reminder time.'
+      );
+      return;
+    }
+
+    try {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "⏰ Task Reminder",
+          body: `"${taskTitle}" is due in ${selectedReminder?.label.replace(' before', '')}!`,
+          data: { taskId },
+        },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+          seconds: seconds,
+          repeats: false,
+        },
+      });
+      console.log('Notification scheduled for:', triggerDate);
+    } catch (error) {
+      console.error('Failed to schedule notification:', error);
+    }
   };
 
   const handleCreateTask = async () => {
@@ -104,17 +149,34 @@ export default function AddTaskModal() {
       return;
     }
 
+    // Combine Date and Time
+    const finalDueDate = new Date(dueDate);
+    console.log('🔹 [Debug] Initial dueDate:', dueDate?.toISOString());
+    console.log('🔹 [Debug] dueTime state:', dueTime);
+
+    if (dueTime) {
+      finalDueDate.setHours(dueTime.getHours(), dueTime.getMinutes(), 0, 0);
+    } else {
+      console.log('🔹 [Debug] No dueTime set, defaulting to 23:59');
+      finalDueDate.setHours(23, 59, 0, 0); // Default end of day
+    }
+    console.log('🔹 [Debug] finalDueDate calculated:', finalDueDate.toISOString());
+
     const task = await createTask({
       title: title.trim(),
       description: description.trim(),
       courseId: selectedCourseId,
       priority,
-      dueDate: dueDate.toISOString(),
-      dueTime: dueTime ? formatTime(dueTime) : '11:59 PM',
+      dueDate: finalDueDate.toISOString(), // Use combined date
+      dueTime: dueTime ? formatTime(dueTime) : '23:59',
       category: 'other',
     });
 
     if (task) {
+      // Schedule Notification Locally
+      if (enableReminder) {
+        await scheduleLocalNotification(task.id, task.title, finalDueDate);
+      }
       router.back();
     }
   };
@@ -137,7 +199,7 @@ export default function AddTaskModal() {
     onClose: () => void;
     title: string;
     options: any[];
-    selectedValue: string;
+    selectedValue: any;
     onSelect: (value: any) => void;
     renderOption: (option: any, isSelected: boolean) => React.ReactNode;
   }) => (
@@ -256,31 +318,37 @@ export default function AddTaskModal() {
               <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Deadline</Text>
             </View>
 
-            {/* Due Date */}
-            <Text style={[styles.label, { color: colors.textPrimary }]}>
-              Due Date <Text style={{ color: colors.error }}>*</Text>
-            </Text>
-            <TouchableOpacity
-              style={[styles.dateTimeWrapper, { backgroundColor: colors.background, borderColor: colors.border }]}
-              onPress={() => setShowDatePicker(true)}
-            >
-              <Ionicons name="calendar-outline" size={20} color={colors.textMuted} />
-              <Text style={[styles.dateTimeText, { color: dueDate ? colors.textPrimary : colors.textMuted }]}>
-                {formatDate(dueDate)}
-              </Text>
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
+              {/* Due Date */}
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.label, { color: colors.textPrimary }]}>
+                  Due Date <Text style={{ color: colors.error }}>*</Text>
+                </Text>
+                <TouchableOpacity
+                  style={[styles.dateTimeWrapper, { backgroundColor: colors.background, borderColor: colors.border }]}
+                  onPress={() => setShowDatePicker(true)}
+                >
+                  <Ionicons name="calendar-outline" size={20} color={colors.textMuted} />
+                  <Text style={[styles.dateTimeText, { color: dueDate ? colors.textPrimary : colors.textMuted }]} numberOfLines={1}>
+                    {formatDate(dueDate)}
+                  </Text>
+                </TouchableOpacity>
+              </View>
 
-            {/* Due Time */}
-            <Text style={[styles.label, { color: colors.textPrimary }]}>Due Time</Text>
-            <TouchableOpacity
-              style={[styles.dateTimeWrapper, { backgroundColor: colors.background, borderColor: colors.border }]}
-              onPress={() => setShowTimePicker(true)}
-            >
-              <Ionicons name="time-outline" size={20} color={colors.textMuted} />
-              <Text style={[styles.dateTimeText, { color: dueTime ? colors.textPrimary : colors.textMuted }]}>
-                {formatTime(dueTime)}
-              </Text>
-            </TouchableOpacity>
+              {/* Due Time */}
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.label, { color: colors.textPrimary }]}>Due Time</Text>
+                <TouchableOpacity
+                  style={[styles.dateTimeWrapper, { backgroundColor: colors.background, borderColor: colors.border }]}
+                  onPress={() => setShowTimePicker(true)}
+                >
+                  <Ionicons name="time-outline" size={20} color={colors.textMuted} />
+                  <Text style={[styles.dateTimeText, { color: dueTime ? colors.textPrimary : colors.textMuted }]}>
+                    {formatTime(dueTime)}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
 
           {/* Settings Section */}
@@ -338,6 +406,21 @@ export default function AddTaskModal() {
             <Text style={[styles.reminderDescription, { color: colors.textSecondary }]}>
               Enable reminders to get notified before deadlines
             </Text>
+
+            {enableReminder && (
+              <TouchableOpacity
+                style={[styles.selectWrapper, { backgroundColor: colors.background, borderColor: colors.border, marginTop: 16 }]}
+                onPress={() => setShowReminderPicker(true)}
+              >
+                <View style={styles.selectContent}>
+                  <Text style={styles.selectIcon}>{selectedReminder?.icon}</Text>
+                  <Text style={[styles.selectText, { color: colors.textPrimary }]}>
+                    {selectedReminder?.label}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-down" size={20} color={colors.textMuted} />
+              </TouchableOpacity>
+            )}
           </View>
 
           {/* Bottom spacing */}
@@ -358,25 +441,94 @@ export default function AddTaskModal() {
         </View>
       </KeyboardAvoidingView>
 
-      {/* Date Picker */}
-      {showDatePicker && (
-        <DateTimePicker
-          value={dueDate || new Date()}
-          mode="date"
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-          onChange={handleDateChange}
-          minimumDate={new Date()}
-        />
+      {/* Platform-specific Date Picker Handling */}
+      {Platform.OS === 'ios' ? (
+        <Modal
+          visible={showDatePicker}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowDatePicker(false)}
+        >
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            activeOpacity={1}
+            onPress={() => setShowDatePicker(false)}
+          >
+            <View style={[styles.datePickerContainer, { backgroundColor: colors.cardBackground }]}>
+              <View style={styles.datePickerHeader}>
+                <TouchableOpacity onPress={() => setShowDatePicker(false)}>
+                  <Text style={[styles.doneButton, { color: colors.primary }]}>Done</Text>
+                </TouchableOpacity>
+              </View>
+              <DateTimePicker
+                value={dueDate || new Date()}
+                mode="date"
+                display="spinner"
+                onChange={handleDateChange}
+                minimumDate={new Date()}
+                textColor={colors.textPrimary}
+                themeVariant={colors.textPrimary === '#FFFFFF' ? 'dark' : 'light'}
+              />
+            </View>
+          </TouchableOpacity>
+        </Modal>
+      ) : (
+        showDatePicker && (
+          <DateTimePicker
+            value={dueDate || new Date()}
+            mode="date"
+            display="default"
+            onChange={(event, date) => {
+              setShowDatePicker(false);
+              if (date) setDueDate(date);
+            }}
+            minimumDate={new Date()}
+          />
+        )
       )}
 
-      {/* Time Picker */}
-      {showTimePicker && (
-        <DateTimePicker
-          value={dueTime || new Date()}
-          mode="time"
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-          onChange={handleTimeChange}
-        />
+      {/* Platform-specific Time Picker Handling */}
+      {Platform.OS === 'ios' ? (
+        <Modal
+          visible={showTimePicker}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowTimePicker(false)}
+        >
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            activeOpacity={1}
+            onPress={() => setShowTimePicker(false)}
+          >
+            <View style={[styles.datePickerContainer, { backgroundColor: colors.cardBackground }]}>
+              <View style={styles.datePickerHeader}>
+                <TouchableOpacity onPress={() => setShowTimePicker(false)}>
+                  <Text style={[styles.doneButton, { color: colors.primary }]}>Done</Text>
+                </TouchableOpacity>
+              </View>
+              <DateTimePicker
+                value={dueTime || new Date()}
+                mode="time"
+                display="spinner"
+                onChange={handleTimeChange}
+                textColor={colors.textPrimary}
+                themeVariant={colors.textPrimary === '#FFFFFF' ? 'dark' : 'light'}
+              />
+            </View>
+          </TouchableOpacity>
+        </Modal>
+      ) : (
+        showTimePicker && (
+          <DateTimePicker
+            value={dueTime || new Date()}
+            mode="time"
+            display="default"
+            onChange={(event, time) => {
+              setShowTimePicker(false);
+              if (time) setDueTime(time);
+            }}
+          />
+        )
       )}
 
       {/* Course Picker Modal */}
@@ -426,6 +578,22 @@ export default function AddTaskModal() {
           <View style={styles.priorityOption}>
             <Text style={styles.priorityOptionIcon}>{s.icon}</Text>
             <Text style={[styles.priorityOptionText, { color: colors.textPrimary }]}>{s.label}</Text>
+          </View>
+        )}
+      />
+
+      {/* Reminder Picker Modal */}
+      <PickerModal
+        visible={showReminderPicker}
+        onClose={() => setShowReminderPicker(false)}
+        title="Remind me"
+        options={reminderOptions}
+        selectedValue={reminderOffset}
+        onSelect={setReminderOffset}
+        renderOption={(r) => (
+          <View style={styles.priorityOption}>
+            <Text style={styles.priorityOptionIcon}>{r.icon}</Text>
+            <Text style={[styles.priorityOptionText, { color: colors.textPrimary }]}>{r.label}</Text>
           </View>
         )}
       />
@@ -635,5 +803,26 @@ const styles = StyleSheet.create({
   },
   priorityOptionText: {
     fontSize: 16,
+  },
+  datePickerContainer: {
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingBottom: 40,
+    width: '100%',
+    position: 'absolute',
+    bottom: 0,
+  },
+  datePickerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.1)',
+    paddingBottom: 10,
+  },
+  doneButton: {
+    fontSize: 17,
+    fontWeight: '600',
   },
 });

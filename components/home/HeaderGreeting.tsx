@@ -9,7 +9,7 @@ interface HeaderGreetingProps {
 
 export function HeaderGreeting({ userName = 'User' }: HeaderGreetingProps) {
   const { colors } = useTheme();
-  
+
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good Morning';

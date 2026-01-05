@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useAuth } from '@/contexts/AuthContext';
 import { ThemeColors, ThemeMode, useTheme } from '@/contexts/ThemeContext';
 
 interface SettingItemProps {
@@ -18,20 +19,20 @@ interface SettingItemProps {
   colors: ThemeColors;
 }
 
-function SettingItem({ 
+function SettingItem({
   iconName,
   iconColor,
-  title, 
-  subtitle, 
-  hasSwitch, 
-  switchValue, 
+  title,
+  subtitle,
+  hasSwitch,
+  switchValue,
   onSwitchChange,
   onPress,
   colors,
 }: SettingItemProps) {
   return (
-    <TouchableOpacity 
-      style={[styles.settingItem, { borderBottomColor: colors.border }]} 
+    <TouchableOpacity
+      style={[styles.settingItem, { borderBottomColor: colors.border }]}
       onPress={onPress}
       disabled={hasSwitch}
       activeOpacity={0.7}
@@ -59,8 +60,27 @@ function SettingItem({
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const { logout } = useAuth();
   const { colors, isDark, themeMode, setThemeMode, toggleTheme } = useTheme();
   const [notifications, setNotifications] = React.useState(true);
+
+  const handleLogout = () => {
+    Alert.alert(
+      "Log Out",
+      "Are you sure you want to log out?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Log Out",
+          style: "destructive",
+          onPress: async () => {
+            await logout();
+            // Router redirection is handled by useProtectedRoute in _layout
+          }
+        }
+      ]
+    );
+  };
 
   const getThemeModeLabel = (mode: ThemeMode): string => {
     switch (mode) {
@@ -196,7 +216,10 @@ export default function SettingsScreen() {
         </View>
 
         {/* Logout */}
-        <TouchableOpacity style={[styles.logoutButton, { backgroundColor: colors.cardBackground }]}>
+        <TouchableOpacity
+          style={[styles.logoutButton, { backgroundColor: colors.cardBackground }]}
+          onPress={handleLogout}
+        >
           <Ionicons name="log-out-outline" size={20} color={colors.error} style={{ marginRight: 8 }} />
           <Text style={[styles.logoutText, { color: colors.error }]}>Log Out</Text>
         </TouchableOpacity>

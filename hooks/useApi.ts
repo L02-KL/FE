@@ -5,20 +5,22 @@
  * They handle loading states, error states, and data fetching.
  */
 
+import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/services';
+import { apiClient } from '@/services/api/client';
 import {
-    Course,
-    CreateCourseRequest,
-    CreateTaskRequest,
-    DashboardData,
-    DashboardStats,
-    PaginatedResponse,
-    PaginationParams,
-    Task,
-    TaskFilters,
-    UpdateCourseRequest,
-    UpdateTaskRequest,
-    UserSettings,
+  Course,
+  CreateCourseRequest,
+  CreateTaskRequest,
+  DashboardData,
+  DashboardStats,
+  PaginatedResponse,
+  PaginationParams,
+  Task,
+  TaskFilters,
+  UpdateCourseRequest,
+  UpdateTaskRequest,
+  UserSettings,
 } from '@/types';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -37,6 +39,7 @@ interface UseApiState<T> {
 // ============================================
 
 export function useDashboard() {
+  const { user } = useAuth();
   const [state, setState] = useState<UseApiState<DashboardData>>({
     data: null,
     loading: true,
@@ -44,6 +47,7 @@ export function useDashboard() {
   });
 
   const fetchData = useCallback(async () => {
+    if (!user || !apiClient.hasToken()) return;
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
       const data = await api.dashboard.getDashboardData();
@@ -51,7 +55,7 @@ export function useDashboard() {
     } catch (error) {
       setState({ data: null, loading: false, error: error as Error });
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     fetchData();
@@ -61,6 +65,7 @@ export function useDashboard() {
 }
 
 export function useDashboardStats() {
+  const { user } = useAuth();
   const [state, setState] = useState<UseApiState<DashboardStats>>({
     data: null,
     loading: true,
@@ -68,6 +73,7 @@ export function useDashboardStats() {
   });
 
   const fetchData = useCallback(async () => {
+    if (!user || !apiClient.hasToken()) return;
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
       const data = await api.dashboard.getStats();
@@ -75,7 +81,7 @@ export function useDashboardStats() {
     } catch (error) {
       setState({ data: null, loading: false, error: error as Error });
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     fetchData();
@@ -89,6 +95,7 @@ export function useDashboardStats() {
 // ============================================
 
 export function useTasks(filters?: TaskFilters, pagination?: PaginationParams) {
+  const { user } = useAuth();
   const [state, setState] = useState<UseApiState<PaginatedResponse<Task>>>({
     data: null,
     loading: true,
@@ -96,6 +103,7 @@ export function useTasks(filters?: TaskFilters, pagination?: PaginationParams) {
   });
 
   const fetchData = useCallback(async () => {
+    if (!user || !apiClient.hasToken()) return;
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
       const data = await api.tasks.getTasks(filters, pagination);
@@ -103,7 +111,7 @@ export function useTasks(filters?: TaskFilters, pagination?: PaginationParams) {
     } catch (error) {
       setState({ data: null, loading: false, error: error as Error });
     }
-  }, [filters, pagination]);
+  }, [filters, pagination, user]);
 
   useEffect(() => {
     fetchData();
@@ -113,6 +121,7 @@ export function useTasks(filters?: TaskFilters, pagination?: PaginationParams) {
 }
 
 export function useTask(id: string) {
+  const { user } = useAuth();
   const [state, setState] = useState<UseApiState<Task>>({
     data: null,
     loading: true,
@@ -120,7 +129,7 @@ export function useTask(id: string) {
   });
 
   const fetchData = useCallback(async () => {
-    if (!id) return;
+    if (!id || !user || !apiClient.hasToken()) return;
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
       const data = await api.tasks.getTaskById(id);
@@ -128,7 +137,7 @@ export function useTask(id: string) {
     } catch (error) {
       setState({ data: null, loading: false, error: error as Error });
     }
-  }, [id]);
+  }, [id, user]);
 
   useEffect(() => {
     fetchData();
@@ -138,6 +147,7 @@ export function useTask(id: string) {
 }
 
 export function useUpcomingTasks(limit = 5) {
+  const { user } = useAuth();
   const [state, setState] = useState<UseApiState<Task[]>>({
     data: null,
     loading: true,
@@ -145,6 +155,7 @@ export function useUpcomingTasks(limit = 5) {
   });
 
   const fetchData = useCallback(async () => {
+    if (!user || !apiClient.hasToken()) return;
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
       const data = await api.tasks.getUpcomingTasks(limit);
@@ -152,7 +163,7 @@ export function useUpcomingTasks(limit = 5) {
     } catch (error) {
       setState({ data: null, loading: false, error: error as Error });
     }
-  }, [limit]);
+  }, [limit, user]);
 
   useEffect(() => {
     fetchData();
@@ -236,6 +247,7 @@ export function useTaskMutations() {
 // ============================================
 
 export function useCourses(pagination?: PaginationParams) {
+  const { user } = useAuth();
   const [state, setState] = useState<UseApiState<PaginatedResponse<Course>>>({
     data: null,
     loading: true,
@@ -243,6 +255,7 @@ export function useCourses(pagination?: PaginationParams) {
   });
 
   const fetchData = useCallback(async () => {
+    if (!user || !apiClient.hasToken()) return;
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
       const data = await api.courses.getCourses(pagination);
@@ -250,7 +263,7 @@ export function useCourses(pagination?: PaginationParams) {
     } catch (error) {
       setState({ data: null, loading: false, error: error as Error });
     }
-  }, [pagination]);
+  }, [pagination, user]);
 
   useEffect(() => {
     fetchData();
@@ -260,6 +273,7 @@ export function useCourses(pagination?: PaginationParams) {
 }
 
 export function useCourse(id: string) {
+  const { user } = useAuth();
   const [state, setState] = useState<UseApiState<Course>>({
     data: null,
     loading: true,
@@ -267,7 +281,7 @@ export function useCourse(id: string) {
   });
 
   const fetchData = useCallback(async () => {
-    if (!id) return;
+    if (!id || !user || !apiClient.hasToken()) return;
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
       const data = await api.courses.getCourseById(id);
@@ -275,7 +289,7 @@ export function useCourse(id: string) {
     } catch (error) {
       setState({ data: null, loading: false, error: error as Error });
     }
-  }, [id]);
+  }, [id, user]);
 
   useEffect(() => {
     fetchData();
@@ -344,6 +358,7 @@ export function useCourseMutations() {
 // ============================================
 
 export function useSettings() {
+  const { user } = useAuth();
   const [state, setState] = useState<UseApiState<UserSettings>>({
     data: null,
     loading: true,
@@ -351,6 +366,7 @@ export function useSettings() {
   });
 
   const fetchData = useCallback(async () => {
+    if (!user || !apiClient.hasToken()) return;
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
       const data = await api.settings.getSettings();
@@ -358,7 +374,7 @@ export function useSettings() {
     } catch (error) {
       setState({ data: null, loading: false, error: error as Error });
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     fetchData();

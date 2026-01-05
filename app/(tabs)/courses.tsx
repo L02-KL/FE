@@ -3,22 +3,33 @@ import { CourseCard } from '@/components/courses/CourseCard';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useCourses, useDashboardStats } from '@/hooks/useApi';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import React from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CoursesScreen() {
   const { colors } = useTheme();
   const router = useRouter();
-  const { data, loading, error } = useCourses();
-  const { data: stats } = useDashboardStats();
-  
+  const { data, loading, error, refetch } = useCourses();
+  const { data: stats, refetch: refetchStats } = useDashboardStats();
+
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+      refetchStats();
+    }, [refetch, refetchStats])
+  );
+
   const courses = data?.items || [];
   const currentSemester = courses[0]?.semester || 'Fall 2024';
 
   const handleCoursePress = (courseId: string) => {
     router.push(`/course/${courseId}`);
+  };
+
+  const handleCreateCourse = () => {
+    router.push('/course/create');
   };
 
   if (loading) {
@@ -83,7 +94,12 @@ export default function CoursesScreen() {
         </View>
 
         {/* Section Header */}
-        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>All Courses</Text>
+        <View style={styles.sectionHeader}>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary, marginBottom: 0 }]}>All Courses</Text>
+          <TouchableOpacity onPress={handleCreateCourse}>
+            <Ionicons name="add-circle" size={32} color={colors.primary} />
+          </TouchableOpacity>
+        </View>
 
         {/* Course List */}
         {courses.map((course) => (
@@ -104,8 +120,8 @@ export default function CoursesScreen() {
           </View>
         )}
 
-        {/* Bottom spacing for FAB */}
-        <View style={{ height: 100 }} />
+        {/* Bottom spacing */}
+        <View style={{ height: 20 }} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -192,10 +208,15 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 14,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 16,
   },
   emptyState: {
     flex: 1,

@@ -1,4 +1,5 @@
 import { Mascot } from '@/components/common/Mascot';
+import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
@@ -7,6 +8,7 @@ import { Animated, StyleSheet, Text, View } from 'react-native';
 export default function SplashScreen() {
   const { colors } = useTheme();
   const router = useRouter();
+  const { user, isLoading } = useAuth();
   const fadeAnim = new Animated.Value(0);
   const scaleAnim = new Animated.Value(0.8);
 
@@ -26,13 +28,19 @@ export default function SplashScreen() {
       }),
     ]).start();
 
-    // Navigate to home after delay
+    // Navigate based on auth state after delay
     const timer = setTimeout(() => {
-      router.replace('/(tabs)');
-    }, 2500);
+      if (!isLoading) {
+        if (user) {
+          router.replace('/(tabs)');
+        } else {
+          router.replace('/login');
+        }
+      }
+    }, 2000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [user, isLoading]);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.primary }]}>
@@ -49,7 +57,7 @@ export default function SplashScreen() {
         <Text style={styles.appName}>TaskMaster</Text>
         <Text style={styles.tagline}>Your personal task companion</Text>
       </Animated.View>
-      
+
       <View style={styles.footer}>
         <Text style={styles.footerText}>Made with 💙</Text>
       </View>

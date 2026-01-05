@@ -1,0 +1,29 @@
+{
+    "project_info": {
+        "project_number": "444103923380",
+        "project_id": "kl05mobile",
+        "storage_bucket": "kl05mobile.firebasestorage.app"
+    },
+    "client": [
+        {
+            "client_info": {
+                "mobilesdk_app_id": "1:444103923380:android:a770efbe0a58f7ba5d29e1",
+                "android_client_info": {
+                    "package_name": "com.anonymous.myapp"
+                }
+            },
+            "oauth_client": [],
+            "api_key": [
+                {
+                    "current_key": "AIzaSyAN6uPkh4rrOtnifCwbd2k9TcXUR99WXv0"
+                }
+            ],
+            "services": {
+                "appinvite_service": {
+                    "other_platform_oauth_client": []
+                }
+            }
+        }
+    ],
+    "configuration_version": "1"
+}

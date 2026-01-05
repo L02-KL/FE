@@ -1,20 +1,20 @@
 import {
-    AuthResponse,
-    Course,
-    CreateCourseRequest,
-    CreateTaskRequest,
-    DashboardData,
-    DashboardStats,
-    LoginRequest,
-    PaginatedResponse,
-    PaginationParams,
-    RegisterRequest,
-    Task,
-    TaskFilters,
-    UpdateCourseRequest,
-    UpdateTaskRequest,
-    User,
-    UserSettings
+  AuthResponse,
+  Course,
+  CreateCourseRequest,
+  CreateTaskRequest,
+  DashboardData,
+  DashboardStats,
+  LoginRequest,
+  PaginatedResponse,
+  PaginationParams,
+  RegisterRequest,
+  Task,
+  TaskFilters,
+  UpdateCourseRequest,
+  UpdateTaskRequest,
+  User,
+  UserSettings
 } from '@/types';
 
 // ============================================
@@ -28,6 +28,7 @@ export interface IAuthService {
   logout(): Promise<void>;
   getCurrentUser(): Promise<User>;
   refreshToken(): Promise<AuthResponse>;
+  updatePushToken(token: string): Promise<void>;
 }
 
 export interface ITaskService {

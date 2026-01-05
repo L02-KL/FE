@@ -29,9 +29,16 @@ class ApiClient {
     this.authToken = null;
   }
 
+  hasToken(): boolean {
+    return !!this.authToken;
+  }
+
   private async request<T>(endpoint: string, config: RequestConfig): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
-    
+
+    console.log(`🚀 [API Request] ${config.method} ${url}`);
+    if (config.body) console.log('📦 [API Body]', JSON.stringify(config.body, null, 2));
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       ...config.headers,
@@ -54,8 +61,11 @@ class ApiClient {
 
       clearTimeout(timeoutId);
 
+      console.log(`📥 [API Response Status] ${response.status}`);
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.error('❌ [API Error Data]', errorData);
         throw new ApiError(
           errorData.message || `HTTP ${response.status}`,
           response.status,
@@ -64,18 +74,20 @@ class ApiClient {
       }
 
       const data = await response.json();
+      console.log('✅ [API Response Data]', data);
       return data;
     } catch (error) {
       clearTimeout(timeoutId);
-      
+      console.error('🔥 [API Exception]', error);
+
       if (error instanceof ApiError) {
         throw error;
       }
-      
+
       if (error instanceof Error && error.name === 'AbortError') {
         throw new ApiError('Request timeout', 408);
       }
-      
+
       throw new ApiError('Network error', 0);
     }
   }

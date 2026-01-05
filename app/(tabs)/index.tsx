@@ -5,14 +5,20 @@ import { StatsCard } from '@/components/home/StatsCard';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useDashboard } from '@/hooks/useApi';
-import { useRouter } from 'expo-router';
-import React from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function HomeScreen() {
   const router = useRouter();
   const { colors } = useTheme();
   const { data, loading, error, refetch } = useDashboard();
+
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch])
+  );
 
   const handleViewAllTasks = () => {
     router.push('/tasks');
@@ -43,15 +49,15 @@ export default function HomeScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView 
-        style={styles.scrollView} 
+      <ScrollView
+        style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {/* Header Card */}
         <View style={[styles.headerCard, { backgroundColor: colors.primaryLight }]}>
           <HeaderGreeting />
-          
+
           {/* Stats Row */}
           <View style={styles.statsRow}>
             <StatsCard
@@ -78,7 +84,7 @@ export default function HomeScreen() {
             actionText="View All"
             onActionPress={handleViewAllTasks}
           />
-          
+
           {upcomingTasks.map((task) => (
             <TaskCard
               key={task.id}

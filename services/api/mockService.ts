@@ -1,29 +1,29 @@
 import { mockCourses, mockTasks } from '@/data/mockData';
 import {
-    AuthResponse,
-    Course,
-    CreateCourseRequest,
-    CreateTaskRequest,
-    DashboardData,
-    DashboardStats,
-    LoginRequest,
-    PaginatedResponse,
-    PaginationParams,
-    RegisterRequest,
-    Task,
-    TaskFilters,
-    UpdateCourseRequest,
-    UpdateTaskRequest,
-    User,
-    UserSettings
+  AuthResponse,
+  Course,
+  CreateCourseRequest,
+  CreateTaskRequest,
+  DashboardData,
+  DashboardStats,
+  LoginRequest,
+  PaginatedResponse,
+  PaginationParams,
+  RegisterRequest,
+  Task,
+  TaskFilters,
+  UpdateCourseRequest,
+  UpdateTaskRequest,
+  User,
+  UserSettings
 } from '@/types';
 import {
-    IApiService,
-    IAuthService,
-    ICourseService,
-    IDashboardService,
-    ISettingsService,
-    ITaskService,
+  IApiService,
+  IAuthService,
+  ICourseService,
+  IDashboardService,
+  ISettingsService,
+  ITaskService,
 } from './interfaces';
 
 // ============================================
@@ -63,11 +63,7 @@ class MockAuthService implements IAuthService {
     await delay(500);
     return {
       user: mockUser,
-      tokens: {
-        accessToken: 'mock-access-token',
-        refreshToken: 'mock-refresh-token',
-        expiresIn: 3600,
-      },
+      token: 'mock-access-token',
     };
   }
 
@@ -75,11 +71,7 @@ class MockAuthService implements IAuthService {
     await delay(500);
     return {
       user: { ...mockUser, email: data.email, name: data.name },
-      tokens: {
-        accessToken: 'mock-access-token',
-        refreshToken: 'mock-refresh-token',
-        expiresIn: 3600,
-      },
+      token: 'mock-access-token',
     };
   }
 
@@ -93,24 +85,25 @@ class MockAuthService implements IAuthService {
   }
 
   async refreshToken(): Promise<AuthResponse> {
-    await delay(300);
+    await delay(500);
     return {
-      user: mockUser,
-      tokens: {
-        accessToken: 'new-mock-access-token',
-        refreshToken: 'new-mock-refresh-token',
-        expiresIn: 3600,
-      },
+      token: 'mock-refreshed-token',
+      user: mockUser
     };
+  }
+
+  async updatePushToken(token: string): Promise<void> {
+    await delay(500);
+    console.log('Mock: Push token updated:', token);
   }
 }
 
 class MockTaskService implements ITaskService {
   async getTasks(filters?: TaskFilters, pagination?: PaginationParams): Promise<PaginatedResponse<Task>> {
     await delay(300);
-    
+
     let filtered = [...tasks];
-    
+
     if (filters?.priority) {
       filtered = filtered.filter(t => t.priority === filters.priority);
     }
@@ -177,7 +170,7 @@ class MockTaskService implements ITaskService {
     await delay(300);
     const index = tasks.findIndex(t => t.id === id);
     if (index === -1) throw new Error('Task not found');
-    
+
     tasks[index] = {
       ...tasks[index],
       ...data,
@@ -223,7 +216,7 @@ class MockTaskService implements ITaskService {
 class MockCourseService implements ICourseService {
   async getCourses(pagination?: PaginationParams): Promise<PaginatedResponse<Course>> {
     await delay(300);
-    
+
     const page = pagination?.page || 1;
     const limit = pagination?.limit || 10;
     const start = (page - 1) * limit;
@@ -269,7 +262,7 @@ class MockCourseService implements ICourseService {
     await delay(300);
     const index = courses.findIndex(c => c.id === id);
     if (index === -1) throw new Error('Course not found');
-    
+
     courses[index] = {
       ...courses[index],
       ...data,
@@ -300,7 +293,7 @@ class MockDashboardService implements IDashboardService {
     const stats = await this.getStats();
     const taskService = new MockTaskService();
     const upcomingTasks = await taskService.getUpcomingTasks(3);
-    
+
     return {
       stats,
       upcomingTasks,
@@ -314,7 +307,7 @@ class MockDashboardService implements IDashboardService {
     const completedTasks = tasks.filter(t => t.completed);
     const now = new Date();
     const overdueTasks = tasks.filter(t => !t.completed && new Date(t.dueDate) < now);
-    
+
     return {
       tasksDue: pendingTasks.length,
       tasksCompleted: completedTasks.length,
@@ -324,8 +317,8 @@ class MockDashboardService implements IDashboardService {
         const daysUntilDue = (new Date(t.dueDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
         return daysUntilDue <= 7;
       }).length,
-      completionRate: tasks.length > 0 
-        ? Math.round((completedTasks.length / tasks.length) * 100) 
+      completionRate: tasks.length > 0
+        ? Math.round((completedTasks.length / tasks.length) * 100)
         : 0,
     };
   }
