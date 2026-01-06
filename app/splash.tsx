@@ -54,7 +54,7 @@ export default function SplashScreen() {
                 ]}
             >
                 <Mascot mood="happy" size="xlarge" />
-                <Text style={styles.appName}>TaskMaster</Text>
+                <Text style={styles.appName}>DeadTood</Text>
                 <Text style={styles.tagline}>Your personal task companion</Text>
             </Animated.View>
 

@@ -156,7 +156,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             // Optional: Call logout endpoint
             // await api.auth.logout();
             await AsyncStorage.removeItem(TOKEN_KEY);
-            await AsyncStorage.removeItem(ONBOARDING_KEY);
+            // await AsyncStorage.removeItem(ONBOARDING_KEY);
             apiClient.clearToken();
             setUser(null);
         } catch (error) {
