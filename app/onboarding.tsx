@@ -144,7 +144,7 @@ export default function OnboardingScreen() {
 
     const handleComplete = async () => {
         await completeOnboarding();
-        router.replace("/login");
+        router.replace("/welcome");
     };
 
     const scrollToNext = () => {
@@ -163,11 +163,7 @@ export default function OnboardingScreen() {
                 <FlatList
                     data={slides}
                     renderItem={({ item }) => (
-                        <OnboardingItem
-                            item={item}
-                            onSkip={handleComplete}
-                            displaySkip={item.displaySkip}
-                        />
+                        <OnboardingItem item={item} onSkip={handleComplete} />
                     )}
                     horizontal
                     showsHorizontalScrollIndicator={false}
@@ -276,6 +272,7 @@ const styles = StyleSheet.create({
         color: "#666",
         textAlign: "center",
         paddingHorizontal: 20,
+        fontSize: 20,
         lineHeight: 22,
     },
 

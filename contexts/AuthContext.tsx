@@ -48,9 +48,8 @@ export function useProtectedRoute(
         const inPublicGroup =
             segments[0] === "login" ||
             segments[0] === "register" ||
-            segments[0] === "splash";
-
-        // Check for onboarding segment safely
+            segments[0] === "splash" ||
+            segments[0] === "welcome";
         const inOnboarding = segments[0] === "onboarding";
 
         console.log("🔒 [Auth Check]", {
@@ -65,18 +64,18 @@ export function useProtectedRoute(
             console.log("🆕 Redirecting to Onboarding...");
             router.replace("/onboarding");
         } else if (isOnboardingCompleted && inOnboarding) {
-            console.log("✅ Onboarding done, Redirecting to Login...");
-            router.replace("/login");
+            console.log("✅ Onboarding done, Redirecting to Welcome...");
+            router.replace("/welcome");
         } else if (!user && inAuthGroup) {
-            // If trying to access tabs without user, redirect to login
-            console.log("🔏 Redirecting to Login...");
-            router.replace("/login");
+            // If trying to access tabs without user, redirect to welcome
+            console.log("🔏 Redirecting to Welcome...");
+            router.replace("/welcome");
         } else if (
             user &&
             isOnboardingCompleted &&
             (inPublicGroup || inOnboarding || !segments[0])
         ) {
-            // If user is logged in but on login/register/splash, redirect to tabs
+            // If user is logged in but on login/register/splash/welcome, redirect to tabs
             // !segments[0] means root path or empty segments
             console.log("🔓 Redirecting to Tabs...");
             router.replace("/(tabs)");

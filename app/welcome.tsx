@@ -1,10 +1,10 @@
 import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router"; // 1. Import the router hook
+import { Image } from "expo-image";
+import { Link } from "expo-router"; // 1. Import the router hook
 import { StatusBar } from "expo-status-bar";
 import React from "react";
 import {
     Dimensions,
-    Image,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -15,8 +15,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const { width } = Dimensions.get("window");
 
 export default function WelcomeScreen() {
-    const router = useRouter(); // 2. Initialize the router
-
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar style="dark" />
@@ -25,11 +23,9 @@ export default function WelcomeScreen() {
                 <View style={styles.header}>
                     {/* Use your image source here */}
                     <Image
-                        source={{
-                            uri: "https://cdn-icons-png.flaticon.com/512/2921/2921226.png",
-                        }}
+                        source={require("../assets/images/onboarding/Onboarding1.svg")}
                         style={styles.illustration}
-                        resizeMode="contain"
+                        contentFit="contain"
                     />
                 </View>
 
@@ -58,24 +54,20 @@ export default function WelcomeScreen() {
                         </TouchableOpacity>
 
                         {/* 3. Add the onPress handler to navigate */}
-                        <TouchableOpacity
-                            style={styles.emailButton}
-                            onPress={() => {
-                                console.log("LOGIN");
-                                router.replace("/login");
-                            }}
-                        >
-                            <View style={styles.iconWrapper}>
-                                <MaterialCommunityIcons
-                                    name="email-outline"
-                                    size={20}
-                                    color="black"
-                                />
-                            </View>
-                            <Text style={styles.emailButtonText}>
-                                Continue with Email
-                            </Text>
-                        </TouchableOpacity>
+                        <Link href="/login" asChild>
+                            <TouchableOpacity style={styles.emailButton}>
+                                <View style={styles.iconWrapper}>
+                                    <MaterialCommunityIcons
+                                        name="email-outline"
+                                        size={20}
+                                        color="black"
+                                    />
+                                </View>
+                                <Text style={styles.emailButtonText}>
+                                    Continue with Email
+                                </Text>
+                            </TouchableOpacity>
+                        </Link>
                     </View>
 
                     <Text style={styles.legalText}>
@@ -174,6 +166,10 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "600",
         marginLeft: 10,
+    },
+    iconWrapper: {
+        justifyContent: "center",
+        alignItems: "center",
     },
     legalText: {
         fontSize: 11,
