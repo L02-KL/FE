@@ -61,7 +61,7 @@ export interface AuthResponse {
 // Task Types
 // ============================================
 export type Priority = 'high' | 'medium' | 'low';
-export type TaskStatus = 'pending' | 'in-progress' | 'completed' | 'overdue';
+export type TaskStatus = 'pending' | 'in-progress' | 'done' | 'overdue';
 export type TaskCategory = 'math' | 'chemistry' | 'physics' | 'literature' | 'other';
 
 // Reminder types

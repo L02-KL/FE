@@ -1,29 +1,29 @@
 import { mockCourses, mockTasks } from '@/data/mockData';
 import {
-  AuthResponse,
-  Course,
-  CreateCourseRequest,
-  CreateTaskRequest,
-  DashboardData,
-  DashboardStats,
-  LoginRequest,
-  PaginatedResponse,
-  PaginationParams,
-  RegisterRequest,
-  Task,
-  TaskFilters,
-  UpdateCourseRequest,
-  UpdateTaskRequest,
-  User,
-  UserSettings
+    AuthResponse,
+    Course,
+    CreateCourseRequest,
+    CreateTaskRequest,
+    DashboardData,
+    DashboardStats,
+    LoginRequest,
+    PaginatedResponse,
+    PaginationParams,
+    RegisterRequest,
+    Task,
+    TaskFilters,
+    UpdateCourseRequest,
+    UpdateTaskRequest,
+    User,
+    UserSettings
 } from '@/types';
 import {
-  IApiService,
-  IAuthService,
-  ICourseService,
-  IDashboardService,
-  ISettingsService,
-  ITaskService,
+    IApiService,
+    IAuthService,
+    ICourseService,
+    IDashboardService,
+    ISettingsService,
+    ITaskService,
 } from './interfaces';
 
 // ============================================
@@ -193,7 +193,7 @@ class MockTaskService implements ITaskService {
     const task = tasks.find(t => t.id === id);
     if (!task) throw new Error('Task not found');
     task.completed = !task.completed;
-    task.status = task.completed ? 'completed' : 'pending';
+    task.status = task.completed ? 'done' : 'pending';
     task.updatedAt = new Date();
     return task;
   }

@@ -4,17 +4,17 @@ import * as Notifications from 'expo-notifications';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Switch,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -66,7 +66,7 @@ export default function AddTaskModal() {
   const statuses: { key: TaskStatus; label: string; icon: string }[] = [
     { key: 'pending', label: 'Pending', icon: '📝' },
     { key: 'in-progress', label: 'In Progress', icon: '🔄' },
-    { key: 'completed', label: 'Completed', icon: '✅' },
+    { key: 'done', label: 'Completed', icon: '✅' },
   ];
 
   const selectedCourse = courses.find(c => c.id === selectedCourseId);

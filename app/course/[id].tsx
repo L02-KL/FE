@@ -43,7 +43,7 @@ function CourseTaskCard({ task, onPress }: { task: Task; onPress: () => void }) 
         return { bg: '#FFEBEE', text: '#F44336', label: 'Pending' };
       case 'in-progress':
         return { bg: '#FFF8E1', text: '#FF9800', label: 'In Progress' };
-      case 'completed':
+      case 'done':
         return { bg: '#E8F5E9', text: '#4CAF50', label: 'Completed' };
       default:
         return { bg: colors.border, text: colors.textMuted, label: status };
@@ -111,8 +111,8 @@ export default function CourseDetailScreen() {
 
   const courseTasks = tasksData?.items || [];
   const totalTasks = courseTasks.length;
-  const activeTasks = courseTasks.filter(t => t.status !== 'completed').length;
-  const doneTasks = courseTasks.filter(t => t.status === 'completed').length;
+  const activeTasks = courseTasks.filter(t => t.status !== 'done').length;
+  const doneTasks = courseTasks.filter(t => t.status === 'done').length;
 
   const handleBack = () => {
     router.back();

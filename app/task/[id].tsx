@@ -44,7 +44,7 @@ export default function TaskDetailScreen() {
         {
           text: 'Complete',
           onPress: async () => {
-            await updateTask(task.id, { status: 'completed', completed: true });
+            await updateTask(task.id, { status: 'done', completed: true });
             refetch();
           },
         },
@@ -91,7 +91,7 @@ export default function TaskDetailScreen() {
         return { bg: '#FFEBEE', text: '#F44336', label: 'Pending', icon: '📝' };
       case 'in-progress':
         return { bg: '#FFF8E1', text: '#FF9800', label: 'In Progress', icon: '🔄' };
-      case 'completed':
+      case 'done':
         return { bg: '#E8F5E9', text: '#4CAF50', label: 'Completed', icon: '✅' };
       default:
         return { bg: colors.border, text: colors.textMuted, label: status, icon: '📋' };
@@ -243,11 +243,11 @@ export default function TaskDetailScreen() {
           <TouchableOpacity
             style={[styles.completeButton, { backgroundColor: '#4CAF50' }]}
             onPress={handleMarkComplete}
-            disabled={mutating || task.status === 'completed'}
+            disabled={mutating || task.status === 'done'}
           >
             <Ionicons name="checkmark-circle-outline" size={22} color="#FFFFFF" />
             <Text style={styles.completeButtonText}>
-              {task.status === 'completed' ? 'Completed' : 'Mark as Complete'}
+              {task.status === 'done' ? 'Completed' : 'Mark as Complete'}
             </Text>
           </TouchableOpacity>
 

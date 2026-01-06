@@ -57,7 +57,7 @@ const getStatusStyle = (status: Task['status'], colors: ThemeColors) => {
       return { bg: '#FFEBEE', text: '#F44336', label: 'Pending' };
     case 'in-progress':
       return { bg: '#FFF8E1', text: '#FF9800', label: 'In Progress' };
-    case 'completed':
+    case 'done':
       return { bg: '#E8F5E9', text: '#4CAF50', label: 'Completed' };
     default:
       return { bg: colors.border, text: colors.textMuted, label: status };

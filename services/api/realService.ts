@@ -46,7 +46,7 @@ const mapTask = (data: any): Task => {
     priority: data.priority,
     status: data.status,
     category: data.category || 'other',
-    completed: data.status === 'completed',
+    completed: data.status === 'done',
     reminders: data.reminders || [],
     createdAt: new Date(data.created_at),
     updatedAt: new Date(data.updated_at),
@@ -127,7 +127,7 @@ class RealTaskService implements ITaskService {
     if (filters?.status) params.append('status', filters.status);
     if (filters?.courseId) params.append('course_id', filters.courseId);
     if (filters?.completed !== undefined) {
-      if (filters.completed) params.append('status', 'completed');
+      if (filters.completed) params.append('status', 'done');
     }
 
     if (pagination?.page) params.append('page', String(pagination.page));
@@ -199,7 +199,7 @@ class RealTaskService implements ITaskService {
     if (data.dueTime) payload.due_time = data.dueTime;
     if (data.priority) payload.priority = data.priority;
     if (data.status) payload.status = data.status;
-    if (data.completed !== undefined) payload.status = data.completed ? 'completed' : 'pending';
+    if (data.completed !== undefined) payload.status = data.completed ? 'done' : 'pending';
 
     const response = await apiClient.patch<ApiResponse<any>>(`/tasks?id=${id}`, payload);
     return mapTask(response.data);
@@ -211,7 +211,7 @@ class RealTaskService implements ITaskService {
 
   async toggleTaskComplete(id: string): Promise<Task> {
     const task = await this.getTaskById(id);
-    const newStatus = task.status === 'completed' ? 'pending' : 'completed';
+    const newStatus = task.status === 'done' ? 'pending' : 'done';
     // Note: updateTask will map the response
     return await this.updateTask(id, { status: newStatus });
   }
@@ -304,7 +304,7 @@ class RealDashboardService implements IDashboardService {
       ]);
 
       const tasks = allTasksResponse.items || [];
-      const completedTasks = tasks.filter(t => t.status === 'completed').length;
+      const completedTasks = tasks.filter(t => t.status === 'done').length;
 
       const stats: DashboardStats = {
         tasksDue: upcomingTasks.length,
