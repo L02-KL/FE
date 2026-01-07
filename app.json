@@ -4,7 +4,7 @@
         "slug": "DeadTood",
         "orientation": "portrait",
         "icon": "./assets/images/icon.png",
-        "scheme": "DeadTood",
+        "scheme": "deadtood",
         "userInterfaceStyle": "automatic",
         "newArchEnabled": true,
         "ios": {
@@ -41,7 +41,8 @@
                         "image": "./assets/images/mascot/happy.png"
                     }
                 }
-            ]
+            ],
+            "expo-web-browser"
         ],
         "experiments": {
             "typedRoutes": true,

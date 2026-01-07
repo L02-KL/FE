@@ -20,7 +20,7 @@ const slides = [
         id: "1",
         title: "Welcome to DeadTood",
         description: "Your friendly study companion for university life",
-        image: require("../assets/images/onboarding/Onboarding1.svg"),
+        image: require("../assets/images/onboarding/Onboarding1.png"),
         backgroundColor: "#FFF5CC",
         icon: "👋",
         buttonIcon: require("../assets/images/onboarding/Next.svg"),
