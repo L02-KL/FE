@@ -23,7 +23,7 @@ export default function WelcomeScreen() {
                 <View style={styles.header}>
                     {/* Use your image source here */}
                     <Image
-                        source={require("../assets/images/onboarding/Onboarding1.svg")}
+                        source={require("../assets/images/onboarding/Onboarding1.png")}
                         style={styles.illustration}
                         contentFit="contain"
                     />
