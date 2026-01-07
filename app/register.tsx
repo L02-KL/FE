@@ -171,7 +171,7 @@ export default function RegisterScreen() {
                                     placeholderTextColor="#94A3B8"
                                     value={confirmPassword}
                                     onChangeText={setConfirmPassword}
-                                    secureTextEntry={true} // Usually confirmed pass is always hidden
+                                    secureTextEntry={!isPasswordVisible}
                                 />
                             </View>
 
