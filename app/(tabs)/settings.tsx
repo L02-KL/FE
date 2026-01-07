@@ -260,36 +260,6 @@ export default function SettingsScreen() {
                     </View>
                 </View>
 
-                {/* Development Section */}
-                <View style={styles.section}>
-                    <Text
-                        style={[
-                            styles.sectionTitle,
-                            { color: colors.textMuted },
-                        ]}
-                    >
-                        Development
-                    </Text>
-                    <View
-                        style={[
-                            styles.sectionContent,
-                            { backgroundColor: colors.cardBackground },
-                        ]}
-                    >
-                        <SettingItem
-                            iconName="refresh-circle-outline"
-                            iconColor={colors.warning}
-                            title="Reset Onboarding"
-                            subtitle="View onboarding screens again"
-                            onPress={async () => {
-                                await resetOnboarding();
-                                // Redirection will happen automatically via useProtectedRoute
-                            }}
-                            colors={colors}
-                        />
-                    </View>
-                </View>
-
                 {/* Support Section */}
                 <View style={styles.section}>
                     <Text
