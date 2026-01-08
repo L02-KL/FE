@@ -14,8 +14,20 @@
     },
     "jest": {
         "preset": "jest-expo",
+        "setupFilesAfterEnv": [
+            "./jest.setup.js"
+        ],
         "transformIgnorePatterns": [
             "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg)"
+        ],
+        "collectCoverage": true,
+        "collectCoverageFrom": [
+            "app/**/*.{ts,tsx}",
+            "components/**/*.{ts,tsx}",
+            "!**/coverage/**",
+            "!**/node_modules/**",
+            "!**/babel.config.js",
+            "!**/jest.setup.js"
         ]
     },
     "dependencies": {
@@ -52,9 +64,11 @@
         "react-native-worklets": "0.5.1"
     },
     "devDependencies": {
+        "@testing-library/react-native": "^13.3.3",
         "@types/react": "~19.1.0",
         "eslint": "^9.25.0",
         "eslint-config-expo": "~10.0.0",
+        "react-test-renderer": "^19.1.0",
         "typescript": "~5.9.2"
     },
     "private": true
