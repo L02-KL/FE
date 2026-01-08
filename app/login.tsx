@@ -3,6 +3,7 @@ import { AntDesign, Feather } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
+import * as Sentry from "@sentry/react-native";
 import {
     ActivityIndicator,
     Alert,
@@ -42,7 +43,8 @@ export default function LoginScreen() {
         try {
             await login({ email: email.trim(), password });
             // Navigation is handled by AuthContext protected route
-        } catch (error: any) {
+        } catch (error: any) {\
+            Sentry.captureException(error);
             console.log("Login error:", error);
             const errorMessage =
                 error.data?.error ||
@@ -53,6 +55,7 @@ export default function LoginScreen() {
             setLoading(false);
         }
     };
+    ``;
 
     return (
         <SafeAreaView style={styles.container}>
