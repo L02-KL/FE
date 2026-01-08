@@ -1,4 +1,4 @@
-import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { Link } from "expo-router"; // 1. Import the router hook
 import { StatusBar } from "expo-status-bar";
@@ -40,7 +40,7 @@ export default function WelcomeScreen() {
                     </Text>
 
                     <View style={styles.buttonContainer}>
-                        <TouchableOpacity style={styles.googleButton}>
+                        {/* <TouchableOpacity style={styles.googleButton}>
                             <View style={styles.iconWrapper}>
                                 <AntDesign
                                     name="google"
@@ -51,7 +51,7 @@ export default function WelcomeScreen() {
                             <Text style={styles.googleButtonText}>
                                 Continue with Google
                             </Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
 
                         {/* 3. Add the onPress handler to navigate */}
                         <Link href="/login" asChild>
