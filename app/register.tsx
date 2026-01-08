@@ -1,5 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { AntDesign, Feather } from "@expo/vector-icons";
+import * as Sentry from "@sentry/react-native";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
@@ -47,6 +48,7 @@ export default function RegisterScreen() {
             await register({ email, password });
             Alert.alert("Success", "Account created successfully!");
         } catch (error: any) {
+            Sentry.captureException(error);
             console.error("Register error:", error);
             Alert.alert(
                 "Registration Failed",

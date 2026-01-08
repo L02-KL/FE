@@ -1,5 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { AntDesign, Feather } from "@expo/vector-icons";
+import * as Sentry from "@sentry/react-native";
 import { Link, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
@@ -43,6 +44,7 @@ export default function LoginScreen() {
             await login({ email: email.trim(), password });
             // Navigation is handled by AuthContext protected route
         } catch (error: any) {
+            Sentry.captureException(error);
             console.log("Login error:", error);
             const errorMessage =
                 error.data?.error ||
@@ -53,6 +55,7 @@ export default function LoginScreen() {
             setLoading(false);
         }
     };
+    ``;
 
     return (
         <SafeAreaView style={styles.container}>

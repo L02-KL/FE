@@ -2,6 +2,7 @@ import { api } from "@/services";
 import { apiClient } from "@/services/api/client";
 import { LoginRequest, RegisterRequest, User } from "@/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Sentry from "@sentry/react-native";
 import { useRouter, useSegments } from "expo-router";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
@@ -108,6 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                         const userData = await api.auth.getCurrentUser();
                         setUser(userData);
                     } catch (error) {
+                        Sentry.captureException(error);
                         console.error("Failed to fetch user profile:", error);
                         // Token might be invalid
                         await AsyncStorage.removeItem(TOKEN_KEY);
@@ -116,6 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     }
                 }
             } catch (error) {
+                Sentry.captureException(error);
                 console.error("Failed to load token:", error);
             } finally {
                 setIsLoading(false);
@@ -134,6 +137,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 setUser(response.user);
             }
         } catch (error) {
+            Sentry.captureException(error);
             throw error;
         }
     };
@@ -147,6 +151,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 setUser(response.user);
             }
         } catch (error) {
+            Sentry.captureException(error);
             throw error;
         }
     };
@@ -160,6 +165,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             apiClient.clearToken();
             setUser(null);
         } catch (error) {
+            Sentry.captureException(error);
             console.error("Logout error:", error);
         }
     };
@@ -169,6 +175,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             await AsyncStorage.setItem(ONBOARDING_KEY, "true");
             setIsOnboardingCompleted(true);
         } catch (error) {
+            Sentry.captureException(error);
             console.log("Error saving onboarding status:", error);
         }
     };

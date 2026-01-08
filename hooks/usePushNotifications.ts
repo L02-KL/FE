@@ -1,8 +1,8 @@
-
-import * as Device from 'expo-device';
-import * as Notifications from 'expo-notifications';
-import { useEffect, useRef, useState } from 'react';
-import { Platform } from 'react-native';
+import * as Sentry from "@sentry/react-native";
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
+import { useEffect, useRef, useState } from "react";
+import { Platform } from "react-native";
 
 export interface PushNotificationState {
     expoPushToken?: Notifications.ExpoPushToken;
@@ -20,8 +20,12 @@ export const usePushNotifications = (): PushNotificationState => {
         }),
     });
 
-    const [expoPushToken, setExpoPushToken] = useState<Notifications.ExpoPushToken | undefined>();
-    const [notification, setNotification] = useState<Notifications.Notification | undefined>();
+    const [expoPushToken, setExpoPushToken] = useState<
+        Notifications.ExpoPushToken | undefined
+    >();
+    const [notification, setNotification] = useState<
+        Notifications.Notification | undefined
+    >();
 
     const notificationListener = useRef<Notifications.Subscription>();
     const responseListener = useRef<Notifications.Subscription>();
@@ -29,26 +33,28 @@ export const usePushNotifications = (): PushNotificationState => {
     async function registerForPushNotificationsAsync() {
         let token;
 
-        if (Platform.OS === 'android') {
-            await Notifications.setNotificationChannelAsync('default', {
-                name: 'default',
+        if (Platform.OS === "android") {
+            await Notifications.setNotificationChannelAsync("default", {
+                name: "default",
                 importance: Notifications.AndroidImportance.MAX,
                 vibrationPattern: [0, 250, 250, 250],
-                lightColor: '#FF231F7C',
+                lightColor: "#FF231F7C",
             });
         }
 
         if (Device.isDevice) {
-            const { status: existingStatus } = await Notifications.getPermissionsAsync();
+            const { status: existingStatus } =
+                await Notifications.getPermissionsAsync();
             let finalStatus = existingStatus;
 
-            if (existingStatus !== 'granted') {
-                const { status } = await Notifications.requestPermissionsAsync();
+            if (existingStatus !== "granted") {
+                const { status } =
+                    await Notifications.requestPermissionsAsync();
                 finalStatus = status;
             }
 
-            if (finalStatus !== 'granted') {
-                alert('Failed to get push token for push notification!');
+            if (finalStatus !== "granted") {
+                alert("Failed to get push token for push notification!");
                 return;
             }
 
@@ -60,15 +66,18 @@ export const usePushNotifications = (): PushNotificationState => {
                 // Try to get token without specific projectId (let Expo infer from login/config)
                 token = await Notifications.getExpoPushTokenAsync();
             } catch (e: any) {
-                console.log('Error getting token:', e);
+                Sentry.captureException(e);
+                console.log("Error getting token:", e);
                 // If it fails demanding a projectId, we can't do much without EAS init
-                if (e.message?.includes('projectId')) {
-                    console.log('MISSING PROJECT ID: Please run "npx eas init" in terminal to set up Push Notifications.');
+                if (e.message?.includes("projectId")) {
+                    console.log(
+                        'MISSING PROJECT ID: Please run "npx eas init" in terminal to set up Push Notifications.'
+                    );
                 }
             }
         } else {
             //   alert('Must use physical device for Push Notifications');
-            console.log('Must use physical device for Push Notifications');
+            console.log("Must use physical device for Push Notifications");
         }
 
         return token;
@@ -77,20 +86,25 @@ export const usePushNotifications = (): PushNotificationState => {
     useEffect(() => {
         registerForPushNotificationsAsync().then((token) => {
             setExpoPushToken(token);
-            if (token) console.log('🔔 [Push Token]', token.data);
+            if (token) console.log("🔔 [Push Token]", token.data);
         });
 
-        notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
-            setNotification(notification);
-            console.log('🔔 [Notification Received]', notification);
-        });
+        notificationListener.current =
+            Notifications.addNotificationReceivedListener((notification) => {
+                setNotification(notification);
+                console.log("🔔 [Notification Received]", notification);
+            });
 
-        responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
-            console.log('🔔 [Notification Response]', response);
-        });
+        responseListener.current =
+            Notifications.addNotificationResponseReceivedListener(
+                (response) => {
+                    console.log("🔔 [Notification Response]", response);
+                }
+            );
 
         return () => {
-            notificationListener.current && notificationListener.current.remove();
+            notificationListener.current &&
+                notificationListener.current.remove();
             responseListener.current && responseListener.current.remove();
         };
     }, []);
