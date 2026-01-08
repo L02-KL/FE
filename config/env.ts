@@ -11,7 +11,7 @@ export const ENV = {
     API_TIMEOUT: 30000,
 
     // App Configuration
-    APP_NAME: "TaskManager",
+    APP_NAME: "DeadTood",
     APP_VERSION: "1.0.0",
 };
 
