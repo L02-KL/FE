@@ -3,7 +3,7 @@
 
 export const ENV = {
     // API Configuration
-    USE_MOCK_API: false, // Set to false to use real API
+    USE_MOCK_API: true, // Set to false to use real API
     // API_BASE_URL: process.env.EXPO_PUBLIC_API_URL || 'http://52.63.73.7:3000/api',
     API_BASE_URL:
         process.env.EXPO_PUBLIC_API_URL ||
